@@ -1,0 +1,7 @@
+---
+
+- name: restart DLC service
+  become: true
+  ansible.builtin.service:
+    name: dlc
+    state: restarted

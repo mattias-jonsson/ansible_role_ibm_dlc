@@ -1,0 +1,42 @@
+---
+
+- name: update DLC config from template
+  become: true
+  ansible.builtin.template:
+    src: dlc_config.json.j2
+    dest: /opt/ibm/si/services/dlc/conf/config.json
+    owner: root
+    group: dlc
+    mode: '0640'
+  notify: restart DLC service
+
+- name: enable DLC service
+  become: true
+  ansible.builtin.service:
+    name: dlc
+    state: started
+    enabled: yes
+
+- name: open firewall ports for DLC
+  become: true
+  ansible.posix.firewalld:
+    zone: public
+    port: '{{ item }}'
+    state: enabled
+    permanent: yes
+    immediate: yes
+  with_items:
+   - 514/udp
+   - 514/tcp
+
+- name: forward ports for DLC
+  become: true
+  ansible.posix.firewalld:
+    rich_rule: '{{ item }}'
+    zone: public
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+  - rule family=ipv4 forward-port port=514 protocol=tcp to-port=1514
+  - rule family=ipv4 forward-port port=514 protocol=udp to-port=1514

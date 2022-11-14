@@ -1,0 +1,22 @@
+---
+
+collections:
+  - ansible.posix
+
+dependencies:
+  - src: https://github.com/mattias-jonsson/ansible_role_ibm_java_sdk.git
+    scm: git
+    version: master
+    name: ansible_role_ibm_java_sdk
+
+galaxy_info:
+  author: Mattias Jonsson
+  description: An Ansible role that handles installation of updates on supported distributions.
+  min_ansible_version: 2.9.27
+  role_name: ansible_role_ibm_dlc
+  license: MIT
+  platforms:
+  - name: EL
+    versions:
+    - "7"
+    - "8"

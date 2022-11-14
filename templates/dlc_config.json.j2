@@ -1,0 +1,16 @@
+{
+
+        'Destination':{
+               'destination.type':'{{ ansible_role_ibm_dlc_dest_type | upper }}',       # Two Options. TLS or UDP
+               'destination.ip':'{{ ansible_role_ibm_dlc_dest_ip }}',
+               'destination.port':'{{ ansible_role_ibm_dlc_dest_port }}'
+       },
+
+       'TLS':{
+               'tls.keystorefilepath':'/opt/ibm/si/services/dlc/keystore/',
+               'tls.keystorepassword':''
+       },
+       
+       'EPS':{{ ansible_role_ibm_dlc_eps }},
+       'DLCMetricEventsEnabled':{{ ansible_role_ibm_dlc_metrics_enabled }}
+}
