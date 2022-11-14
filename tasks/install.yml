@@ -14,6 +14,14 @@
   changed_when: false
   register: installed_dlc_bin_version
 
+- name: check release of IBM DLC binary
+  become: true
+  ansible.builtin.shell: sudo yum info dlc-service | sed -n 's/^Release\s*:\s\([0-9.]*\)$/\1/p'
+  args:
+    warn: false
+  changed_when: false
+  register: installed_dlc_bin_release
+
 - name: install block
   block:
     - name: upload IBM DLC package
@@ -40,5 +48,7 @@
         path: '{{ ibmdlcrpmcopy.dest }}'
         state: absent
 
-  when: ansible_role_ibm_dlc_version != installed_dlc_bin_version.stdout
+  when: 
+    - ansible_role_ibm_dlc_version != installed_dlc_bin_version.stdout
+    - ansible_role_ibm_dlc_release != installed_dlc_bin_release.stdout
  

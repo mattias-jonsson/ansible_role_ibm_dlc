@@ -1,7 +1,8 @@
 ---
 
 ansible_role_ibm_dlc_version: 1.5.0
-ansible_role_ibm_dlc_rpm: dlc-service-1.5.0-1.noarch.rpm
+ansible_role_ibm_dlc_release: 1
+ansible_role_ibm_dlc_rpm: dlc-service-{{ ansible_role_ibm_dlc_version }}-{{ ansible_role_ibm_dlc_release }}.noarch.rpm
 ansible_role_ibm_dlc_dest_type: udp
 ansible_role_ibm_dlc_dest_ip: 'localhost'
 ansible_role_ibm_dlc_dest_port: 32500
