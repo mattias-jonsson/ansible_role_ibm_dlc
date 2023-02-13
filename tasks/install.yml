@@ -1,31 +1,31 @@
 ---
 
 - name: install dependencies
-  become: true
+  become: True
   ansible.builtin.yum:
     name: "{{ ansible_role_ibm_dlc_dependencies }}"
     state: present
 
 - name: check version of IBM DLC binary
-  become: true
+  become: True
   ansible.builtin.shell: sudo yum info dlc-service | sed -n 's/^Version\s*:\s\([0-9.]*\)$/\1/p'
   args:
-    warn: false
-  changed_when: false
+    warn: False
+  changed_when: False
   register: installed_dlc_bin_version
 
 - name: check release of IBM DLC binary
-  become: true
+  become: True
   ansible.builtin.shell: sudo yum info dlc-service | sed -n 's/^Release\s*:\s\([0-9.]*\)$/\1/p'
   args:
-    warn: false
-  changed_when: false
+    warn: False
+  changed_when: False
   register: installed_dlc_bin_release
 
 - name: install block
   block:
     - name: upload IBM DLC package
-      become: true
+      become: True
       ansible.builtin.copy:
         src: '{{ ansible_role_ibm_dlc_rpm }}'
         dest: "/var/tmp/{{ 1000 | random | hash('md5') }}.rpm"
@@ -35,7 +35,7 @@
       register: ibmdlcrpmcopy
 
     - name: install IBM DLC
-      become: true
+      become: True
       ansible.builtin.yum:
         name: '{{ ibmdlcrpmcopy.dest }}'
         state: present
@@ -43,7 +43,7 @@
         allow_downgrade: yes
 
     - name: cleanup temporary files
-      become: true
+      become: True
       ansible.builtin.file: 
         path: '{{ ibmdlcrpmcopy.dest }}'
         state: absent

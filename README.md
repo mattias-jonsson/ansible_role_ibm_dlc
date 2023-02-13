@@ -33,6 +33,7 @@ Role variables
 | `ansible_role_ibm_dlc_release` | Yes | 1 | Release of IBM DLC, default value 1. |
 | `ansible_role_ibm_dlc_rpm` | Yes | dlc-service-{{ ansible_role_ibm_dlc_version }}-{{ ansible_role_ibm_dlc_release }}.noarch.rpm | Filename of IBM DLC installer.  |
 | `ansible_role_ibm_dlc_version` | Yes | 1.5.0 | Version of IBM Distributed Log Collector to install. |
+| `ansible_role_ibm_dlc_print_instanceid` | No | False | Display IBM DLC instance ID in playbook log. |
 
 Dependencies
 ------------
