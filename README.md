@@ -3,7 +3,7 @@ Ansible Role: ansible_role_ibm_dlc
 
 This role perfoms the following actions
 
-Installs/Upgrade IBM Java SDK though dependencies in meta/main.yml, installs/Upgrade/Configure IBM Disconnected Log Collector on the following Operating Systems:
+Installs/upgrade IBM Java SDK though dependencies in meta/main.yml, installs/upgrade/configure IBM Disconnected Log Collector on the following Operating Systems:
 
 <ul>
 <li> Enterprise Linux 7/8
