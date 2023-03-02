@@ -66,4 +66,3 @@ Author Information
 ------------------
 
 Mattias Jonsson
-
