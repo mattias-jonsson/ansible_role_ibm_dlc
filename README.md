@@ -20,10 +20,6 @@ Role Variables
 
 Available variables are listed below, along with default values where applicable (see `defaults/main.yml`):
 
-
-Role variables
----------------
-
 | Variable | Required | Default | Comments |
 | -------- | -------- | ------- | -------- |
 | `ansible_role_ibm_dlc_dest_ip` | Yes | localhost | Destination IP for IBM Qradar destination, default value localhost. |
