@@ -1,31 +1,38 @@
 ---
 
-- name: install dependencies
-  become: True
+- name: Install dependencies.
+  become: true
   ansible.builtin.yum:
     name: "{{ ansible_role_ibm_dlc_dependencies }}"
     state: present
 
-- name: check version of IBM DLC binary
-  become: True
-  ansible.builtin.shell: sudo yum info dlc-service | sed -n 's/^Version\s*:\s\([0-9.]*\)$/\1/p'
+- name: Check version of IBM DLC binary.
+  become: true
+  ansible.builtin.shell: >
+    set -o pipefail && \
+      sudo yum info dlc-service | sed -n 's/^Version\s*:\s\([0-9.]*\)$/\1/p'
   args:
-    warn: False
-  changed_when: False
+    warn: false
+  changed_when: false
   register: installed_dlc_bin_version
 
-- name: check release of IBM DLC binary
-  become: True
-  ansible.builtin.shell: sudo yum info dlc-service | sed -n 's/^Release\s*:\s\([0-9.]*\)$/\1/p'
+- name: Check release of IBM DLC binary.
+  become: true
+  ansible.builtin.shell: >
+    set -o pipefail && \
+      sudo yum info dlc-service | sed -n 's/^Release\s*:\s\([0-9.]*\)$/\1/p'
   args:
-    warn: False
-  changed_when: False
+    warn: false
+  changed_when: false
   register: installed_dlc_bin_release
 
-- name: install block
+- name: Install block.
+  when:
+    - ansible_role_ibm_dlc_version != installed_dlc_bin_version.stdout
+    - ansible_role_ibm_dlc_release != installed_dlc_bin_release.stdout
   block:
-    - name: upload IBM DLC package
-      become: True
+    - name: Upload IBM DLC package.
+      become: true
       ansible.builtin.copy:
         src: '{{ ansible_role_ibm_dlc_rpm }}'
         dest: "/var/tmp/{{ 1000 | random | hash('md5') }}.rpm"
@@ -34,20 +41,16 @@
         mode: '0770'
       register: ibmdlcrpmcopy
 
-    - name: install IBM DLC
-      become: True
+    - name: Install IBM DLC.
+      become: true
       ansible.builtin.yum:
         name: '{{ ibmdlcrpmcopy.dest }}'
         state: present
-        disable_gpg_check: yes
-        allow_downgrade: yes
+        disable_gpg_check: true
+        allow_downgrade: true
 
-    - name: cleanup temporary files
-      become: True
-      ansible.builtin.file: 
+    - name: Cleanup temporary files.
+      become: true
+      ansible.builtin.file:
         path: '{{ ibmdlcrpmcopy.dest }}'
         state: absent
-
-  when:
-    - ansible_role_ibm_dlc_version != installed_dlc_bin_version.stdout
-    - ansible_role_ibm_dlc_release != installed_dlc_bin_release.stdout

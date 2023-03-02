@@ -7,5 +7,5 @@ ansible_role_ibm_dlc_dest_type: udp
 ansible_role_ibm_dlc_dest_ip: 'localhost'
 ansible_role_ibm_dlc_dest_port: 32500
 ansible_role_ibm_dlc_eps: 5000
-ansible_role_ibm_dlc_metrics_enabled: True
-ansible_role_ibm_dlc_print_instanceid: False
+ansible_role_ibm_dlc_metrics_enabled: true
+ansible_role_ibm_dlc_print_instanceid: false

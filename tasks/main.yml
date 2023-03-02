@@ -12,24 +12,25 @@
   with_items:
     - "{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
 
-- ansible.builtin.import_tasks:
+- name: Import install tasks.
+  ansible.builtin.import_tasks:
     file: install.yml
-- ansible.builtin.import_tasks:
+- name: Import configure tasks
+  ansible.builtin.import_tasks:
     file: configure.yml
 
 - name: Find IBM DLC instance file.
-  become: True
+  become: true
   ansible.builtin.find:
     paths: /etc/dlc/instance
     file_type: file
     patterns: '[a-z0-9-]+'
-    use_regex: True
+    use_regex: true
   register: ibm_dlc_instance_file_search
 
 - name: Print IBM DLC instance ID when ansible_role_ibm_dlc_print_instanceid is set to True
-  debug:
-    msg: 'IBM DLC instance ID: {{ ibm_dlc_instance_file_search.files[0].path|basename }}'
-  when: 
+  ansible.builtin.debug:
+    msg: 'IBM DLC instance ID: {{ ibm_dlc_instance_file_search.files[0].path | basename }}'
+  when:
     - ansible_role_ibm_dlc_print_instanceid
     - ibm_dlc_instance_file_search.matched == 1
-  

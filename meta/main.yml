@@ -16,7 +16,7 @@ galaxy_info:
   role_name: ansible_role_ibm_dlc
   license: MIT
   platforms:
-  - name: EL
-    versions:
-    - "7"
-    - "8"
+    - name: EL
+      versions:
+        - "7"
+        - "8"
