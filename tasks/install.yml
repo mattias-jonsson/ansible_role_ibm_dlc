@@ -6,30 +6,28 @@
     name: "{{ ansible_role_ibm_dlc_dependencies }}"
     state: present
 
-- name: Check version of IBM DLC binary.
-  become: true
-  ansible.builtin.shell: >
-    set -o pipefail && \
-      sudo yum info dlc-service | sed -n 's/^Version\s*:\s\([0-9.]*\)$/\1/p'
-  args:
-    warn: false
+- name: Check if IBM DLC is installed.
+  ansible.builtin.command: rpm -q dlc-service
+  register: dlc_installed_check
   changed_when: false
-  register: installed_dlc_bin_version
+  failed_when: dlc_installed_check.rc > 1
 
-- name: Check release of IBM DLC binary.
-  become: true
-  ansible.builtin.shell: >
-    set -o pipefail && \
-      sudo yum info dlc-service | sed -n 's/^Release\s*:\s\([0-9.]*\)$/\1/p'
-  args:
-    warn: false
+- name: Get DLC version and release info if installed
+  ansible.builtin.shell: rpm -q --queryformat '%{VERSION}\n%{RELEASE}\n' dlc-service
+  register: dlc_info
   changed_when: false
-  register: installed_dlc_bin_release
+  when: dlc_installed_check.rc == 0
+
+- name: Set installed version and release.
+  ansible.builtin.set_fact:
+    installed_dlc_bin_version: "{{ dlc_info.stdout_lines[0] | default('0') }}"
+    installed_dlc_bin_release: "{{ dlc_info.stdout_lines[1] | default('0') }}"
+
 
 - name: Install block.
   when:
-    - ansible_role_ibm_dlc_version != installed_dlc_bin_version.stdout
-    - ansible_role_ibm_dlc_release != installed_dlc_bin_release.stdout
+    - ansible_role_ibm_dlc_version != installed_dlc_bin_version
+    - ansible_role_ibm_dlc_release != installed_dlc_bin_release
   block:
     - name: Upload IBM DLC package.
       become: true

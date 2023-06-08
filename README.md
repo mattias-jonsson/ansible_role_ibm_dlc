@@ -6,7 +6,7 @@ This role perfoms the following actions
 Installs/upgrade IBM Java SDK though dependencies in meta/main.yml, installs/upgrade/configure IBM Disconnected Log Collector on the following Operating Systems:
 
 <ul>
-<li> Enterprise Linux 7/8
+<li> Enterprise Linux 7/8/9
 </ul>
 
 Requirements
@@ -27,7 +27,7 @@ Available variables are listed below, along with default values where applicable
 | `ansible_role_ibm_dlc_dest_type` | Yes | udp | Protocol for logdestination, valid values are UDP/TCP, default value UDP. |
 | `ansible_role_ibm_dlc_eps` | Yes | 5000 | EPS limit. Default value 5000. |
 | `ansible_role_ibm_dlc_release` | Yes | 1 | Release of IBM DLC, default value 1. |
-| `ansible_role_ibm_dlc_rpm` | Yes | dlc-service-{{ ansible_role_ibm_dlc_version }}-{{ ansible_role_ibm_dlc_release }}.noarch.rpm | Filename of IBM DLC installer.  |
+| `ansible_role_ibm_dlc_rpm` | No | dlc-service-{{ ansible_role_ibm_dlc_version }}-{{ ansible_role_ibm_dlc_release }}.noarch.rpm | Filename of IBM DLC installer.  |
 | `ansible_role_ibm_dlc_version` | Yes | 1.5.0 | Version of IBM Distributed Log Collector to install. |
 | `ansible_role_ibm_dlc_print_instanceid` | No | False | Display IBM DLC instance ID in playbook log. |
 
@@ -47,7 +47,6 @@ Example Playbook
         ansible_role_ibm_dlc_dest_type: udp
         ansible_role_ibm_dlc_eps: 5000
         ansible_role_ibm_dlc_release: 1
-        ansible_role_ibm_dlc_rpm: dlc-service-1.5.0-1.noarch.rpm
         ansible_role_ibm_dlc_version: 1.5.0
 
       roles:
