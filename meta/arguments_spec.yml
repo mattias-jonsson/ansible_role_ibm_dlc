@@ -1,0 +1,79 @@
+
+argument_specs:
+  main:
+    short_description: "Installs/upgrade/configure IBM Disconnected Log Collector."
+    description:
+      - "Performs the installation or upgrade of the IBM DLC."
+      - "Removes temporary files used during installation."
+    options:
+      ibm_dlc_dest_ip:
+        description:
+          - Specifies the IP address of the IBM QRadar deployment designated to receive logs.
+        required: true
+        type: str
+      ibm_dlc_dest_port:
+        description:
+          - Defines the port on the IBM QRadar deployment. The default port is 32500.
+        required: false
+        default: 32500
+        type: int
+      ibm_dlc_dest_proto:
+        description:
+          - Specifies the protocol used for sending logs to the IBM QRadar deployment. Supported values are UDP and TCP, with UDP being the default.
+        required: false
+        default: udp
+        type: str
+        choices:
+          - udp
+          - tcp
+      ibm_dlc_eps:
+        description:
+          - Sets the Events Per Second (EPS) limit for log transmission. The default limit is set to 5000. Adjust according to your logging requirements.
+        required: false
+        default: 5000
+        type: int
+      ibm_dlc_installer_sha256sum:
+        description:
+          - Provides a mapping of IBM DLC installer filenames to their respective SHA256 checksums, ensuring integrity and authenticity of the installer files. Refer to defaults/main.yml for specific values.
+        required: false
+        type: dict
+        default:
+          dlc-service-1.5.0-1.noarch.rpm: 4848d430d67b811a5fdf61366e25021743e0f4b43d4ccb233bc0278153bfa8e3
+          dlc-service-1.6.0-1.noarch.rpm: 2655bbdf9a86661df9022f333d6e4e801af8f95f92d46ec291e9595e8895285c
+          dlc-service-1.7.0-1.noarch.rpm: 5e37e3788d5b09738a900150010ccda1f22d848fc8b5b6893624d6442d845e1a
+          dlc-service-1.7.1-1.noarch.rpm: 125d723a0d8f2f6e828fe4a4d833352ffb18a2d67678025cc000347dab9fbc92
+          dlc-service-1.7.2-1.noarch.rpm: addd49a3d15614fa8cfc075ac30e3bc23d01679570855aa34913dc6c1619ef72
+          dlc-service-1.7.3-1.noarch.rpm: f93a3b71f90451734b69da69c163182b09ea8a4293d2758761945644ab591396
+          dlc-service-1.8.2-1.noarch.rpm: be72ce68d9d22bd6961397d4b2019be4db14f2268d5276338ca0e03450f07e90
+          dlc-service-1.8.3-1.noarch.rpm: 3d7834653ddb55dcdaebbddc3cd68c27ed440ff83bb83c2a04963985902748b6
+          dlc-service-1.8.4-1.noarch.rpm: 834a8bca1fb97feb658c2df60acb34345d0be7e6f1e28102e31ed25f196aecfd
+          dlc-service-install-1.8.5-1.tgz: 236ea8d97208068af5afaef62364070fb1410dca915ecbf9e3e3cb9658449212
+      ibm_dlc_installer:
+        description:
+          - URL or local path, including filename, of the installer.
+        required: true
+        type: str
+      ibm_dlc_metrics_enabled:
+        description:
+          - Enables or disables the collection of performance metrics by the IBM DLC. This is enabled by default.
+        required: false
+        type: bool
+        default: true
+      ibm_dlc_print_instanceid:
+        description:
+          - Controls whether the IBM DLC instance ID should be logged in the playbook output. Default is false.
+        required: false
+        type: bool
+        default: false
+      ibm_dlc_tls_version:
+        description:
+          - Specifies the version of the TLS protocol used.
+        required: false
+        type: float
+        default: 1.2
+      ibm_dlc_version:
+        description:
+          - Automatically determines the version of the IBM DLC based on the installer filename.
+        required: false
+        type: str
+        default: "{{ ibm_dlc_installer | basename | regex_search('-([0-9.-]+)\\.', '\\1') | first }}"

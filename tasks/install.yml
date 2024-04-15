@@ -3,52 +3,53 @@
 - name: Install dependencies.
   become: true
   ansible.builtin.yum:
-    name: "{{ ansible_role_ibm_dlc_dependencies }}"
+    name: "{{ ibm_dlc_dependencies }}"
     state: present
 
-- name: Check if IBM DLC is installed.
-  ansible.builtin.command: rpm -q dlc-service
-  register: dlc_installed_check
-  changed_when: false
-  failed_when: dlc_installed_check.rc > 1
+- name: Create temporary directory for installer.
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: "{{ 1000 | random | hash('md5') }}"
+  register: installer_download_dir
 
-- name: Get DLC version and release info if installed
-  ansible.builtin.shell: rpm -q --queryformat '%{VERSION}\n%{RELEASE}\n' dlc-service
-  register: dlc_info
-  changed_when: false
-  when: dlc_installed_check.rc == 0
+- name: Include tasks to download/copy installer files.
+  ansible.builtin.include_tasks:
+    file: "copy_{{ 'url_' if ibm_dlc_installer is ansible.builtin.url else 'file_' }}installer.yml"
 
-- name: Set installed version and release.
-  ansible.builtin.set_fact:
-    installed_dlc_bin_version: "{{ dlc_info.stdout_lines[0] | default('0') }}"
-    installed_dlc_bin_release: "{{ dlc_info.stdout_lines[1] | default('0') }}"
+- name: Install IBM DLC through RPM.
+  become: true
+  ansible.builtin.yum:
+    name: '{{ ibmdlcrpmcopy.dest }}'
+    state: present
+    disable_gpg_check: true # TODO missing IBMs offical signing keys. RPMs for v 1.6.0 and above are signed it would seem
+    allow_downgrade: true
+  when:  ibm_dlc_installer | basename | split('.') | last | lower == 'rpm'
 
 
-- name: Install block.
-  when:
-    - ansible_role_ibm_dlc_version != installed_dlc_bin_version
-    - ansible_role_ibm_dlc_release != installed_dlc_bin_release
+- name: Block for tgz installation
   block:
-    - name: Upload IBM DLC package.
-      become: true
-      ansible.builtin.copy:
-        src: '{{ ansible_role_ibm_dlc_rpm }}'
-        dest: "/var/tmp/{{ 1000 | random | hash('md5') }}.rpm"
-        owner: root
-        group: root
-        mode: '0770'
-      register: ibmdlcrpmcopy
+    - name: Extract installer tar archive.
+      ansible.builtin.unarchive:
+        src: '{{ ibmdlcrpmcopy.dest }}'
+        dest: '{{ installer_download_dir.path }}'
+        remote_src: true
+        keep_newer: false
 
-    - name: Install IBM DLC.
-      become: true
-      ansible.builtin.yum:
-        name: '{{ ibmdlcrpmcopy.dest }}'
-        state: present
-        disable_gpg_check: true
-        allow_downgrade: true
-
-    - name: Cleanup temporary files.
-      become: true
+    - name: Delete installer archive.
       ansible.builtin.file:
         path: '{{ ibmdlcrpmcopy.dest }}'
         state: absent
+
+    - name: Run IBM DLC installer script
+      become: true
+      ansible.builtin.shell: yes | ./install.sh
+      args:
+        chdir: '{{ installer_download_dir.path }}'
+  when: ibm_dlc_installer | basename | split('.') | last | lower == 'tgz'
+
+
+- name: Cleanup temporary files.
+  become: true
+  ansible.builtin.file:
+    path: '{{ ibmdlcrpmcopy.dest }}'
+    state: absent

@@ -8,7 +8,15 @@
     owner: root
     group: dlc
     mode: '0640'
-  notify: Restart DLC service
+  register: dlc_config
+
+- name: Restart DLC service if config file is updated
+  become: true
+  ansible.builtin.service:
+    name: dlc
+    state: restarted
+  when: dlc_config.changed
+  register: restart_dlc_service
 
 - name: Enable DLC service.
   become: true
@@ -17,7 +25,7 @@
     state: started
     enabled: true
 
-- name: Open firewall ports for DLC.
+- name: Open ports 514 TCP/UDP in local firewall.
   become: true
   ansible.posix.firewalld:
     zone: public
@@ -25,11 +33,11 @@
     state: enabled
     permanent: true
     immediate: true
-  with_items:
+  loop:
     - 514/udp
     - 514/tcp
 
-- name: Forward ports for DLC.
+- name: Configure local firewall to forward port 514 TCP/UDP to 1514 TCP/UDP.
   become: true
   ansible.posix.firewalld:
     rich_rule: '{{ item }}'
@@ -37,6 +45,15 @@
     permanent: true
     immediate: true
     state: enabled
-  with_items:
+  loop:
     - rule family=ipv4 forward-port port=514 protocol=tcp to-port=1514
     - rule family=ipv4 forward-port port=514 protocol=udp to-port=1514
+
+- name: Wait for ports 1514 to become open on the host
+  ansible.builtin.wait_for:
+    port: 1514
+    delay: 30
+    sleep: 5
+    state: started
+    timeout: 300
+  when: restart_dlc_service.changed

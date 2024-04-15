@@ -1,11 +1,22 @@
 ---
 
-ansible_role_ibm_dlc_version: 1.5.0
-ansible_role_ibm_dlc_release: 1
-ansible_role_ibm_dlc_rpm: dlc-service-{{ ansible_role_ibm_dlc_version }}-{{ ansible_role_ibm_dlc_release }}.noarch.rpm
-ansible_role_ibm_dlc_dest_type: udp
-ansible_role_ibm_dlc_dest_ip: 'localhost'
-ansible_role_ibm_dlc_dest_port: 32500
-ansible_role_ibm_dlc_eps: 5000
-ansible_role_ibm_dlc_metrics_enabled: true
-ansible_role_ibm_dlc_print_instanceid: false
+#ibm_dlc_dest_ip: 'localhost' # No default value is provided
+ibm_dlc_dest_port: 32500
+ibm_dlc_dest_proto: udp
+ibm_dlc_eps: 5000
+# ibm_dlc_installer: files/dlc-service-1.5.0-1.noarch.rpm # No default value is provided
+ibm_dlc_metrics_enabled: true
+ibm_dlc_print_instanceid: false
+ibm_dlc_version: "{{ ibm_dlc_installer | basename | regex_search('-([0-9.-]+)\\.', '\\1') | first }}"
+ibm_dlc_tls_version: 1.2
+ibm_dlc_installer_sha256sum:
+  dlc-service-1.5.0-1.noarch.rpm: 4848d430d67b811a5fdf61366e25021743e0f4b43d4ccb233bc0278153bfa8e3
+  dlc-service-1.6.0-1.noarch.rpm: 2655bbdf9a86661df9022f333d6e4e801af8f95f92d46ec291e9595e8895285c
+  dlc-service-1.7.0-1.noarch.rpm: 5e37e3788d5b09738a900150010ccda1f22d848fc8b5b6893624d6442d845e1a
+  dlc-service-1.7.1-1.noarch.rpm: 125d723a0d8f2f6e828fe4a4d833352ffb18a2d67678025cc000347dab9fbc92
+  dlc-service-1.7.2-1.noarch.rpm: addd49a3d15614fa8cfc075ac30e3bc23d01679570855aa34913dc6c1619ef72
+  dlc-service-1.7.3-1.noarch.rpm: f93a3b71f90451734b69da69c163182b09ea8a4293d2758761945644ab591396
+  dlc-service-1.8.2-1.noarch.rpm: be72ce68d9d22bd6961397d4b2019be4db14f2268d5276338ca0e03450f07e90
+  dlc-service-1.8.3-1.noarch.rpm: 3d7834653ddb55dcdaebbddc3cd68c27ed440ff83bb83c2a04963985902748b6
+  dlc-service-1.8.4-1.noarch.rpm: 834a8bca1fb97feb658c2df60acb34345d0be7e6f1e28102e31ed25f196aecfd
+  dlc-service-install-1.8.5-1.tgz: 236ea8d97208068af5afaef62364070fb1410dca915ecbf9e3e3cb9658449212

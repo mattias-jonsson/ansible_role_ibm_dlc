@@ -6,18 +6,30 @@
       - ansible_os_family == 'RedHat'
       - ansible_distribution_major_version | int >= 7
       - ansible_distribution_major_version | int <= 9
-    msg: "{{ ansible_distribution }} version {{ ansible_distribution_major_version }} is not a supported Operating System for this role."
+      - ibm_dlc_installer_sha256sum[ibm_dlc_installer | basename] is defined
+    msg: "{{ checksum_msg if ibm_dlc_installer_sha256sum[ibm_dlc_installer | basename] is not defined else os_msg }}"
+    quiet: true
+  vars:
+    os_msg: "{{ ansible_distribution }} version {{ ansible_distribution_major_version }} is not a supported Operating System for this role."
+    checksum_msg: "Unable to find checksum for {{ ibm_dlc_installer | basename }}, please verify and update the ibm_dlc_installer_sha256sum variable."
 
-- name: Include variables specific for the distribution.
-  ansible.builtin.include_vars: "{{ item }}"
-  with_items:
-    - "{{ ansible_os_family }}.yml"
+- name: Check installed IBM DLC version
+  ansible.builtin.yum:
+    list: dlc-service
+  register: package_check_result
 
-- name: Import install tasks.
-  ansible.builtin.import_tasks:
+- name: Set installed version and release.
+  ansible.builtin.set_fact:
+    installed_dlc_version: "{{ package_check_result.results[0].version | default('1.0.0') }}-{{ package_check_result.results[0].release | default('1') }}"
+
+- name: Include install tasks.
+  ansible.builtin.include_tasks:
     file: install.yml
-- name: Import configure tasks
-  ansible.builtin.import_tasks:
+  when:
+    - ibm_dlc_version is version(installed_dlc_version, operator='gt', version_type='semver')
+
+- name: Include configure tasks
+  ansible.builtin.include_tasks:
     file: configure.yml
 
 - name: Find IBM DLC instance file.
@@ -29,9 +41,15 @@
     use_regex: true
   register: ibm_dlc_instance_file_search
 
-- name: Print IBM DLC instance ID when ansible_role_ibm_dlc_print_instanceid is set to True
-  ansible.builtin.debug:
-    msg: 'IBM DLC instance ID: {{ ibm_dlc_instance_file_search.files[0].path | basename }}'
+- name: Block for IBM DLC instance ID
+  block:
+    - name: Set fact for DLC instance ID
+      ansible.builtin.set_fact:
+        ibm_dlc_instance_id: '{{ ibm_dlc_instance_file_search.files[0].path | basename }}'
+
+    - name: Print IBM DLC Instance ID.
+      ansible.builtin.debug:
+        msg: 'The DLC Instance ID: {{ ibm_dlc_instance_id }}'
   when:
-    - ansible_role_ibm_dlc_print_instanceid
+    - ibm_dlc_print_instanceid
     - ibm_dlc_instance_file_search.matched == 1

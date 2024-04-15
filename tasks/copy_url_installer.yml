@@ -1,0 +1,9 @@
+---
+
+- name: Downloading installer to target.
+  ansible.builtin.get_url:
+    url: '{{ ibm_dlc_installer }}'
+    dest: "{{ installer_download_dir.path }}/{{ ibm_dlc_installer | basename }}"
+    checksum: "sha256:{{ ibm_dlc_installer_sha256sum[ibm_dlc_installer | basename] }}"
+    mode: '0600'
+  register: ibmdlcrpmcopy

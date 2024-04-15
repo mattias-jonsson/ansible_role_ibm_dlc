@@ -1,16 +1,34 @@
 {
+        "Destination":{
+                "destination.type":"{{ ibm_dlc_dest_proto | upper }}",
+                "destination.ip":"{{ ibm_dlc_dest_ip }}",
+                "destination.port":"{{ ibm_dlc_dest_port }}"
+        },
 
-        'Destination':{
-               'destination.type':'{{ ansible_role_ibm_dlc_dest_type | upper }}',       # Two Options. TLS or UDP
-               'destination.ip':'{{ ansible_role_ibm_dlc_dest_ip }}',
-               'destination.port':'{{ ansible_role_ibm_dlc_dest_port }}'
-       },
+        "TLS":{
+                "tls.keystorefilepath":"/opt/ibm/si/services/dlc/keystore/",
+                "tls.keystorepassword":"",
+                "tls.keystoreexpirywindow":"14"{% if ibm_dlc_version is version('1.8.4-1', operator='ge', version_type='semver') %},
+                "tls.version":"TLSv{{ ibm_dlc_tls_version }}"
+                {% endif %}
 
-       'TLS':{
-               'tls.keystorefilepath':'/opt/ibm/si/services/dlc/keystore/',
-               'tls.keystorepassword':''
-       },
-       
-       'EPS':{{ ansible_role_ibm_dlc_eps }},
-       'DLCMetricEventsEnabled':{{ ansible_role_ibm_dlc_metrics_enabled }}
+        },
+        {% if ibm_dlc_version is version('1.8.5-1', operator='ge', version_type='semver') %}
+        "Proxy": {
+                "proxy.description":"Only applicable to destination types TLS, not applicable to destination.type: Kafka and UDP",
+                "proxy.enabled":"false",
+                "proxy.ip":"",
+                "proxy.port":"",
+                "proxy.username":"",
+                "proxy.password":""
+        },
+        {% endif %}
+
+        "EPS":{{ ibm_dlc_eps }},
+        "DLCMetricEventsEnabled":"{{ ibm_dlc_metrics_enabled | lower }}"{% if ibm_dlc_version is version('1.6.0-1', operator='ge', version_type='semver') and ibm_dlc_version is version('1.8.0-1', operator='le', version_type='semver') %},
+        "TOPIC":""{% endif %}{% if ibm_dlc_version is version('1.8.0-1', operator='ge', version_type='semver') %},
+        "ManagementServiceConsumerTOPIC":"",
+        "ManagementServiceProducerTOPIC":""
+        {% endif %}
+
 }

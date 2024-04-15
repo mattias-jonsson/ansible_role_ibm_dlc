@@ -1,0 +1,24 @@
+---
+
+- name: Upload IBM DLC installer package ({{ ibm_dlc_installer }}).
+  ansible.builtin.copy:
+    src: '{{ ibm_dlc_installer }}'
+    dest: "{{ installer_download_dir.path }}"
+    mode: '0600'
+  register: ibmdlcrpmcopy
+
+- name: Calculate checksum for uploaded installer file.
+  ansible.builtin.stat:
+    path: '{{ ibmdlcrpmcopy.dest }}'
+    get_attributes: false
+    get_mime: false
+    get_checksum: true
+    checksum_algorithm: sha256
+  register: installer_file_stat
+
+- name: Verify checksum for installer file
+  ansible.builtin.assert:
+    that:
+      - ibm_dlc_installer_sha256sum[ibm_dlc_installer | basename] == installer_file_stat.stat.checksum
+    msg: 'Installer checksum verification failed for installer file {{ ibm_dlc_installer }} (detected: {{ installer_file_stat.stat.checksum}}, expected: {{ ibm_dlc_installer_sha256sum[ibm_dlc_installer | basename] }}).'
+    quiet: true
