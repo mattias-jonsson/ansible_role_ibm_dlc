@@ -63,7 +63,7 @@ Example Playbook
     ibm_java_sdk_set_default_java: true
 
   roles:
-      - ansible_role_ibm_dlc
+      - ibm_dlc
 ```
 
 License
